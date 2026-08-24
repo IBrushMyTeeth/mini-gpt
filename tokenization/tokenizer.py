@@ -23,17 +23,35 @@ class CharacterTokenizer:
     ) -> None:
 
         self.cfg = cfg
-        self.tokens = cfg.vocabulary + cfg.special_tokens + (cfg.unk_token,)
+        vocabulary = cfg.vocabulary + cfg.special_tokens + (cfg.unk_token,)
 
-        self.token_to_id = {
+        self._validate_unique_tokens(vocabulary)
+        self._vocabulary = vocabulary
+
+
+        self._token_to_id = {
             token: token_id
-            for token_id, token in enumerate(self.tokens)
+            for token_id, token in enumerate(self._vocabulary)
         }
 
-        self.id_to_token = {
+        self._id_to_token = {
             token_id: token
-            for token_id, token in enumerate(self.tokens)
+            for token_id, token in enumerate(self._vocabulary)
         }
+
+    def _validate_unique_tokens(
+        self,
+        vocabulary: tuple[str, ...],
+    ) -> None:
+        """Ensure no duplicate tokens are present in the vocabulary."""
+
+        if len(vocabulary) != len(set(vocabulary)):
+            raise ValueError("Vocabulary contains duplicate tokens.")
+
+    @property
+    def vocabulary_size(self) -> int:
+        """Return the size of the vocabulary."""
+        return len(self._vocabulary)
 
     def encode(
         self,
@@ -41,10 +59,10 @@ class CharacterTokenizer:
     ) -> list[int]:
         """Convert text into a sequence of token IDs."""
 
-        unknown_id = self.token_to_id[self.cfg.unk_token]
+        unknown_id = self._token_to_id[self.cfg.unk_token]
 
         return [
-            self.token_to_id.get(character, unknown_id)
+            self._token_to_id.get(character, unknown_id)
             for character in text
         ]
 
@@ -52,9 +70,14 @@ class CharacterTokenizer:
         self,
         token_ids: list[int],
     ) -> str:
-        """Convert a sequence of token IDs back into text."""
+        """
+        Convert a sequence of token IDs back into text.
+        
+        Raises:
+            KeyError: If a token ID is invalid.
+        """
 
         return "".join(
-            self.id_to_token[token_id]
+            self._id_to_token[token_id]
             for token_id in token_ids
         )
