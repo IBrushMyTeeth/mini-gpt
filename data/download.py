@@ -16,9 +16,11 @@ URL = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshake
 DATA_PATH = Path(__file__).parent / "shakespeare.txt"
 
 
-if DATA_PATH.exists():
-    print(f"Dataset already exists at {DATA_PATH}")
-else:
+def main() -> None:
+    if DATA_PATH.exists():
+        print(f"Dataset already exists at {DATA_PATH}")
+        return
+
     print("Downloading Shakespeare dataset...")
 
     with urlopen(URL) as response:
@@ -27,3 +29,7 @@ else:
     DATA_PATH.write_text(text, encoding="utf-8")
 
     print(f"Downloaded {len(text):,} characters.")
+
+
+if __name__ == "__main__":
+    main()

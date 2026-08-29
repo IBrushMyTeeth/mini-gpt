@@ -4,17 +4,17 @@ Inspect the downloaded Shakespeare dataset and print basic statistics.
 
 from pathlib import Path
 
+DATA_PATH = Path(__file__).parent / "shakespeare.txt"
 
-def inspect()-> None:
+def main() -> None:
     """Print basic information about the Shakespeare dataset."""
 
-    data_path = Path(__file__).parent / "shakespeare.txt"
-    if not data_path.exists():
+    if not DATA_PATH.exists():
         raise FileNotFoundError(
             "Data-path is empty. Please first download the data."
         )
 
-    data = data_path.read_text(encoding="utf-8")
+    data = DATA_PATH.read_text(encoding="utf-8")
 
     text_length = len(data)
     unique_chars = sorted(set(data))
@@ -33,4 +33,4 @@ def inspect()-> None:
     print(data[:500])
 
 if __name__ == "__main__":
-    inspect()
+    main()
