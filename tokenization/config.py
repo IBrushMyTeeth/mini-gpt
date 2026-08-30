@@ -31,11 +31,7 @@ CHARACTER_VOCABULARY = (
 
     # Punctuation
     ".", ",", "!", "?", ";", ":", "'", '"',
-    "-", "_", "(", ")", "[", "]", "{", "}",
-
-    # Mathematical / common symbols
-    "+", "=", "*", "/", "%", "<", ">", "|",
-    "&", "^", "~",
+    "-", "_", "/",
 
     # Currency / common symbols
     "$", "€", "£",
@@ -44,7 +40,7 @@ CHARACTER_VOCABULARY = (
     "@", "#", "`",
 
     # Additional punctuation
-    "…", "—", "“", "”",
+    "—", "“", "”",
 )
 
 
