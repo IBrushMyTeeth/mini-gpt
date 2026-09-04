@@ -10,7 +10,7 @@ connections are applied around each sub-block.
 import torch
 import torch.nn as nn
 from model.attention import MultiHeadAttention
-from mlp import MLP
+from model.mlp import MLP
 
 
 class TransformerBlock(nn.Module):
