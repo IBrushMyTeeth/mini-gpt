@@ -1,23 +1,23 @@
+from pathlib import Path
+
 import torch
 import torch.nn as nn
+
+from model.config import ModelConfig
 from model.embeddings import InputEmbedding
 from model.transformer import TransformerBlock
-from model.config import ModelConfig
-from pathlib import Path
 
 class GPT(nn.Module):
     def __init__(
         self,
         config: ModelConfig,
-        vocabulary_size: int
     ) -> None:
         super().__init__()
 
         self.config = config
-        self.vocabulary_size = vocabulary_size
 
         self.input_embedding = InputEmbedding(
-            vocabulary_size,
+            config.vocabulary_size,
             config.max_sequence_length,
             config.embedding_dim
         )
@@ -39,7 +39,7 @@ class GPT(nn.Module):
         self.layer_norm = nn.LayerNorm(config.embedding_dim)
         self.linear_projection = nn.Linear(
             config.embedding_dim,
-            vocabulary_size,
+            config.vocabulary_size,
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -55,23 +55,29 @@ class GPT(nn.Module):
         return logits
 
     def save(self, path: Path) -> None:
-
-        torch.save({
-            "state_dict" : self.state_dict(),
-            "config" : self.config,
-            "vocabulary_size" : self.vocabulary_size
-        }, path)
+        torch.save(
+            {
+                "state_dict": self.state_dict(),
+                "model_config": {
+                    "vocabulary_size": self.config.vocabulary_size,
+                    "embedding_dim": self.config.embedding_dim,
+                    "attention_dim": self.config.attention_dim,
+                    "max_sequence_length": self.config.max_sequence_length,
+                    "num_heads": self.config.num_heads,
+                    "hidden_dim": self.config.hidden_dim,
+                    "num_layers": self.config.num_layers,
+                },
+            },
+            path,
+        )
 
     @classmethod
     def load(cls, path: Path) -> "GPT":
+        state = torch.load(path, weights_only=True)
 
-        state = torch.load(path)
+        config = ModelConfig(**state["model_config"])
 
-        state_dict = state["state_dict"]
-        config = state["config"]
-        vocabulary_size = state["vocabulary_size"]
-
-        model = cls(config, vocabulary_size)
-        model.load_state_dict(state_dict)
+        model = cls(config)
+        model.load_state_dict(state["state_dict"])
 
         return model

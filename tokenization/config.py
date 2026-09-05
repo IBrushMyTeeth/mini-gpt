@@ -12,7 +12,7 @@ from dataclasses import dataclass
 
 # Character-level vocabulary used by the tokenizer. Characters outside this
 # set are mapped to the unknown token.
-CHARACTER_VOCABULARY = (
+DEFAULT_CHARACTER_VOCABULARY = (
     # Whitespace
     " ",
     "\t",
@@ -52,12 +52,6 @@ class TokenizerConfig:
     The unknown token is always part of the tokenizer vocabulary. Additional
     special tokens, such as BOS or EOS, may optionally be configured.
     """
-    vocabulary: tuple[str, ...]
+    vocabulary: tuple[str, ...] = DEFAULT_CHARACTER_VOCABULARY
     unk_token: str = "<UNK>"
     special_tokens: tuple[str, ...] = ()
-
-
-# Default configuration used by the tokenizer.
-TOKENIZER_CONFIG = TokenizerConfig(
-    vocabulary=CHARACTER_VOCABULARY,
-)

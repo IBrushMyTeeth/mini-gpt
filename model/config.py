@@ -3,6 +3,7 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class ModelConfig:
+        vocabulary_size: int
         embedding_dim: int = 256
         attention_dim: int = 64
         max_sequence_length: int = 128
