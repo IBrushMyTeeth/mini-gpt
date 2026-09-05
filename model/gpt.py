@@ -1,3 +1,12 @@
+"""
+GPT-style language model.
+
+Provides a decoder-only transformer language model that combines token and
+positional embeddings, causal transformer blocks, layer normalization, and a
+linear projection to produce vocabulary logits.
+"""
+
+
 from pathlib import Path
 
 import torch
@@ -8,6 +17,16 @@ from model.embeddings import InputEmbedding
 from model.transformer import TransformerBlock
 
 class GPT(nn.Module):
+    """
+    Decoder-only transformer language model.
+
+    The model maps input token IDs to vocabulary logits through an input
+    embedding layer, a stack of causal transformer blocks, and a final
+    normalization and linear projection layer.
+
+    The model configuration is stored alongside the model weights when saving,
+    allowing the model to be reconstructed when loading.
+    """
     def __init__(
         self,
         config: ModelConfig,
@@ -43,7 +62,9 @@ class GPT(nn.Module):
         )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-
+        """
+        Perform a forward pass through the language model.
+        """
         x = self.input_embedding(x)
 
         for block in self.blocks:
@@ -55,6 +76,9 @@ class GPT(nn.Module):
         return logits
 
     def save(self, path: Path) -> None:
+        """
+        Save the model weights and configuration to a file.
+        """
         torch.save(
             {
                 "state_dict": self.state_dict(),
@@ -73,6 +97,12 @@ class GPT(nn.Module):
 
     @classmethod
     def load(cls, path: Path) -> "GPT":
+        """
+        Load a GPT model from a saved file.
+
+        The model configuration is reconstructed from the saved configuration
+        before loading the model weights.
+        """
         state = torch.load(path, weights_only=True)
 
         config = ModelConfig(**state["model_config"])
