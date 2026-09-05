@@ -19,11 +19,12 @@ class CharacterTokenizer:
     """
     def __init__(
         self,
-        cfg: TokenizerConfig,
+        config: TokenizerConfig,
     ) -> None:
 
-        self.cfg = cfg
-        vocabulary = cfg.vocabulary + cfg.special_tokens + (cfg.unk_token,)
+        self.cfg = config
+        vocabulary = (
+            config.vocabulary + config.special_tokens + (config.unk_token,))
 
         self._validate_unique_tokens(vocabulary)
         self._vocabulary = vocabulary
