@@ -22,6 +22,7 @@ class ShakespeareDataset(Dataset):
         self,
         token_ids: torch.Tensor,
         context_length: int,
+        stride: int
     ) -> None:
         super().__init__()
 
@@ -34,14 +35,21 @@ class ShakespeareDataset(Dataset):
         if len(token_ids) <= context_length:
             raise ValueError("token_ids must be longer than context_length.")
 
+        if stride <= 0:
+            raise ValueError("stride must be a positive integer.")
+
         self.token_ids = token_ids
         self.context_length = context_length
+        self.stride = stride
 
     def __len__(self) -> int:
-        return len(self.token_ids) - self.context_length
+        return (len(self.token_ids) - self.context_length) // self.stride
 
     def __getitem__(self, idx: int) -> tuple[torch.Tensor, torch.Tensor]:
-        x = self.token_ids[idx : idx + self.context_length]
-        y = self.token_ids[idx + 1 : idx + self.context_length + 1]
+        start = idx * self.stride
+        end = start + self.context_length
+
+        x = self.token_ids[start:end]
+        y = self.token_ids[start + 1:end + 1]
 
         return x, y
