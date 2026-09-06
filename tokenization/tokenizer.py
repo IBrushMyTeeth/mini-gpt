@@ -22,7 +22,7 @@ class CharacterTokenizer:
         config: TokenizerConfig,
     ) -> None:
 
-        self.cfg = config
+        self.config = config
         vocabulary = (
             config.vocabulary + config.special_tokens + (config.unk_token,))
 
@@ -60,7 +60,7 @@ class CharacterTokenizer:
     ) -> list[int]:
         """Convert text into a sequence of token IDs."""
 
-        unknown_id = self._token_to_id[self.cfg.unk_token]
+        unknown_id = self._token_to_id[self.config.unk_token]
 
         return [
             self._token_to_id.get(character, unknown_id)
