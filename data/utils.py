@@ -6,7 +6,7 @@ This module provides reusable functions to:
 download the Tiny Shakespeare dataset;
 load the dataset from disk;
 inspect basic dataset statistics; and
-tokenize and save the dataset for reuse during training.
+tokenize, split, and save the dataset for reuse during training.
 
 The functions operate on explicitly provided file paths and do not perform
 any work when this module is imported.
@@ -77,28 +77,44 @@ def inspect_data(path: Path) -> None:
     print("First 500 characters:")
     print(data[:500])
 
-def save_as_tokens(
+def prepare_dataset(
         text_path: Path,
-        tokens_path: Path,
+        save_path: Path,
         tokenizer: CharacterTokenizer,
-
+        train_size: float = 0.9,
+        validation_size: float = 0.05,
 ) -> None:
     """
-    Pre-tokenizes the specified dataset and saves the resulting token
-    IDs for reuse during training.
+    Tokenize, split, and save the Shakespeare dataset.
 
-    The saved representation includes the tokenizer configuration and
-    vocabulary_size used to generate the tokens.
+    The tokenized dataset is split sequentially into training, validation,
+    and test sets. All resulting splits, along with the tokenizer
+    configuration and vocabulary size, are saved to a single file.
+
+    The saved dataset can therefore be reused across training runs to
+    ensure that different models are trained and evaluated on identical
+    data.
+
     """
     if not text_path.exists():
         raise FileNotFoundError(
-            f"Dataset not found at {text_path}."
+            f"Dataset not found at {text_path}. "
             "Download Tiny Shakespeare first."
         )
 
-    if tokens_path.exists():
-        print(f"Tokens already exists at {tokens_path}")
+    if save_path.exists():
+        print(f"Processed dataset already exists at {save_path}")
         return
+
+    if train_size <= 0 or validation_size <= 0:
+        raise ValueError(
+            "train_size and validation_size must be greater than 0."
+        )
+
+    if train_size + validation_size >= 1:
+        raise ValueError(
+            "train_size and validation_size must sum to less than 1."
+        )
 
     data = load_data(text_path)
 
@@ -107,9 +123,25 @@ def save_as_tokens(
         dtype=torch.long,
     )
 
+    train_end = int(len(tokens) * train_size)
+    validation_end = int(
+        len(tokens) * (train_size + validation_size)
+    )
+
+    train_tokens = tokens[:train_end]
+    validation_tokens = tokens[train_end:validation_end]
+    test_tokens = tokens[validation_end:]
+
     torch.save(
         {
-            "tokens": tokens,
+            "train_split": train_tokens,
+            "validation_split": validation_tokens,
+            "test_split": test_tokens,
+            "split_ratio": {
+                "train_size": train_size,
+                "validation_size": validation_size,
+                "test_size": 1.0 - train_size - validation_size,
+            },
             "tokenizer_config": {
                 "vocabulary": tokenizer.config.vocabulary,
                 "unk_token": tokenizer.config.unk_token,
@@ -117,7 +149,10 @@ def save_as_tokens(
             },
             "vocabulary_size": tokenizer.vocabulary_size,
         },
-        tokens_path,
+        save_path,
     )
 
-    print(f"Saved {len(tokens):,} tokens to {tokens_path}")
+    print(f"Saved dataset to {save_path}")
+    print(f"Training tokens: {len(train_tokens):,}")
+    print(f"Validation tokens: {len(validation_tokens):,}")
+    print(f"Test tokens: {len(test_tokens):,}")
