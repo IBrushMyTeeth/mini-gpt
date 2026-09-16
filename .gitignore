@@ -1,4 +1,6 @@
 venv/
 __pycache__/
-data/shakespeare.txt
-data/shakespeare_tokens.pt
+
+data/*.pt
+data/*.txt
+check_points/*.pt
