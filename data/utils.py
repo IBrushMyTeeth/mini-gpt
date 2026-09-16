@@ -78,8 +78,9 @@ def inspect_data(path: Path) -> None:
     print(data[:500])
 
 def prepare_dataset(
-        text_path: Path,
-        save_path: Path,
+        raw_text_path: Path,
+        data_path: Path,
+        tokenizer_path: Path,
         tokenizer: CharacterTokenizer,
         train_size: float = 0.9,
         validation_size: float = 0.05,
@@ -88,22 +89,20 @@ def prepare_dataset(
     Tokenize, split, and save the Shakespeare dataset.
 
     The tokenized dataset is split sequentially into training, validation,
-    and test sets. All resulting splits, along with the tokenizer
-    configuration and vocabulary size, are saved to a single file.
+    and test sets. The resulting splits, split ratios, and vocabulary size
+    are saved to tokens_path.
 
-    The saved dataset can therefore be reused across training runs to
-    ensure that different models are trained and evaluated on identical
-    data.
-
+    The tokenizer configuration is saved separately to tokenizer_path
+    so that it can be reused independently for encoding and decoding text.
     """
-    if not text_path.exists():
+    if not raw_text_path.exists():
         raise FileNotFoundError(
-            f"Dataset not found at {text_path}. "
+            f"Dataset not found at {raw_text_path}. "
             "Download Tiny Shakespeare first."
         )
 
-    if save_path.exists():
-        print(f"Processed dataset already exists at {save_path}")
+    if data_path.exists() and tokenizer_path.exists():
+        print("Processed dataset and tokenizer already exist.")
         return
 
     if train_size <= 0 or validation_size <= 0:
@@ -116,7 +115,7 @@ def prepare_dataset(
             "train_size and validation_size must sum to less than 1."
         )
 
-    data = load_data(text_path)
+    data = load_data(raw_text_path)
 
     tokens = torch.tensor(
         tokenizer.encode(data),
@@ -142,17 +141,21 @@ def prepare_dataset(
                 "validation_size": validation_size,
                 "test_size": 1.0 - train_size - validation_size,
             },
-            "tokenizer_config": {
-                "vocabulary": tokenizer.config.vocabulary,
-                "unk_token": tokenizer.config.unk_token,
-                "special_tokens": tokenizer.config.special_tokens,
-            },
             "vocabulary_size": tokenizer.vocabulary_size,
         },
-        save_path,
+        data_path,
     )
 
-    print(f"Saved dataset to {save_path}")
+    torch.save(
+        {
+            "vocabulary": tokenizer.config.vocabulary,
+            "unk_token": tokenizer.config.unk_token,
+            "special_tokens": tokenizer.config.special_tokens,
+        }, tokenizer_path
+    )
+
+    print(f"Saved dataset to {data_path}")
     print(f"Training tokens: {len(train_tokens):,}")
     print(f"Validation tokens: {len(validation_tokens):,}")
     print(f"Test tokens: {len(test_tokens):,}")
+    print(f"Saved tokenizer to {tokenizer_path}")

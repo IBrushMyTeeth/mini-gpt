@@ -17,18 +17,20 @@ from tokenization.config import TokenizerConfig
 from tokenization.tokenizer import CharacterTokenizer
 
 
-DATA_PATH = Path(__file__).parent / "shakespeare.txt"
-TOKENS_PATH = Path(__file__).parent / "shakespeare_tokens.pt"
+RAW_TEXT_PATH = Path(__file__).parent / "shakespeare.txt"
+DATA_PATH = Path(__file__).parent / "shakespeare_char_tokens.pt"
+TOKENIZER_CONFIG_PATH = Path(__file__).parent / "shakespeare_char_tokenizer_config.pt"
 
 def main():
-    download_shakespeare(DATA_PATH)
+    download_shakespeare(RAW_TEXT_PATH)
 
     config = TokenizerConfig()
     tokenizer = CharacterTokenizer(config)
 
     prepare_dataset(
+        RAW_TEXT_PATH,
         DATA_PATH,
-        TOKENS_PATH,
+        TOKENIZER_CONFIG_PATH,
         tokenizer,
     )
 
