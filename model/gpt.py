@@ -111,3 +111,27 @@ class GPT(nn.Module):
         model.load_state_dict(state["state_dict"])
 
         return model
+
+    @torch.no_grad()
+    def generate_next_token(
+        self,
+        x: torch.Tensor,
+    ) -> torch.Tensor:
+        self.eval()
+
+        context = x[:, -self.config.max_sequence_length:]
+        logits = self(context)
+        next_token = torch.argmax(logits[:, -1, :], dim=-1, keepdim=True)
+
+        return torch.cat((x, next_token), dim=1)
+
+    def generate(
+            self,
+            x: torch.Tensor,
+            tokens: int,
+    ) -> torch.Tensor:
+
+        for _ in range(tokens):
+            x = self.generate_next_token(x)
+
+        return x
