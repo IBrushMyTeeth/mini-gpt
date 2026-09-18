@@ -5,7 +5,8 @@ Provides a tokenizer that maps individual characters to integer token IDs
 and can reconstruct text from those token IDs using a fixed vocabulary and
 optional special tokens.
 """
-
+import torch
+from pathlib import Path
 from tokenization.config import TokenizerConfig
 
 
@@ -82,3 +83,21 @@ class CharacterTokenizer:
             self._id_to_token[token_id]
             for token_id in token_ids
         )
+
+    @classmethod
+    def load(cls, path: Path) -> "CharacterTokenizer":
+        """
+        Load a CharacterTokenizer from a path containing a saved config.
+        Vvocabulary, unk_token and special_tokens must be specified.
+        """
+        data = torch.load(path)
+
+        config = TokenizerConfig(
+            vocabulary=data["vocabulary"],
+            unk_token=data["unk_token"],
+            special_tokens=data["special_tokens"],
+        )
+
+        tokenizer = CharacterTokenizer(config)
+
+        return tokenizer
