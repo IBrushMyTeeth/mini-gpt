@@ -10,7 +10,7 @@ from pathlib import Path
 from tokenization.config import TokenizerConfig
 
 
-class CharacterTokenizer:
+class Tokenizer:
     """
     Tokenizer that represents text as a sequence of character tokens.
 
@@ -85,9 +85,9 @@ class CharacterTokenizer:
         )
 
     @classmethod
-    def load(cls, path: Path) -> "CharacterTokenizer":
+    def load(cls, path: Path) -> "Tokenizer":
         """
-        Load a CharacterTokenizer from a path containing a saved config.
+        Load a Tokenizer from a path containing a saved config.
         Vvocabulary, unk_token and special_tokens must be specified.
         """
         data = torch.load(path)
@@ -98,6 +98,6 @@ class CharacterTokenizer:
             special_tokens=data["special_tokens"],
         )
 
-        tokenizer = CharacterTokenizer(config)
+        tokenizer = Tokenizer(config)
 
         return tokenizer

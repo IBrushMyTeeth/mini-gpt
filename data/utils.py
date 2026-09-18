@@ -17,7 +17,7 @@ from pathlib import Path
 from urllib.request import urlopen
 
 import torch
-from tokenization.tokenizer import CharacterTokenizer
+from tokenization.tokenizer import Tokenizer
 
 
 SHAKESPEARE_URL = "https://raw.githubusercontent.com/karpathy/char-rnn/master/data/tinyshakespeare/input.txt"
@@ -81,7 +81,7 @@ def prepare_dataset(
         raw_text_path: Path,
         data_path: Path,
         tokenizer_path: Path,
-        tokenizer: CharacterTokenizer,
+        tokenizer: Tokenizer,
         train_size: float = 0.9,
         validation_size: float = 0.05,
 ) -> None:

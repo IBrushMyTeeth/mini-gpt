@@ -1,7 +1,7 @@
 """
 Download and preprocess the Tiny Shakespeare dataset.
 
-This module downloads the Tiny Shakespeare dataset, creates a character
+This module downloads the Tiny Shakespeare dataset, creates a
 tokenizer, and prepares the tokenized dataset with fixed training,
 validation, and test splits.
 
@@ -14,7 +14,7 @@ python -m data.download_and_preprocess
 from pathlib import Path
 from data.utils import download_shakespeare, prepare_dataset
 from tokenization.config import TokenizerConfig
-from tokenization.tokenizer import CharacterTokenizer
+from tokenization.tokenizer import Tokenizer
 
 
 RAW_TEXT_PATH = Path(__file__).parent / "shakespeare.txt"
@@ -25,7 +25,7 @@ def main():
     download_shakespeare(RAW_TEXT_PATH)
 
     config = TokenizerConfig()
-    tokenizer = CharacterTokenizer(config)
+    tokenizer = Tokenizer(config)
 
     prepare_dataset(
         RAW_TEXT_PATH,
