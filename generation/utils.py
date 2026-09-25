@@ -39,3 +39,28 @@ def generate_completions(
     ]
 
     return decoded
+
+def generate_completions_with_temp(
+        model: GPT,
+        prompts: list[str],
+        tokenizer: Tokenizer,
+        new_tokens: int,
+        temperature: float,
+) -> list[str]:
+
+    encoded = [
+        torch.tensor(tokenizer.encode(prompt)).unsqueeze(0)
+        for prompt in prompts
+    ]
+
+    completed = [
+        model.generate_with_temp(encoded_prompt, new_tokens, temperature)
+        for encoded_prompt in encoded
+    ]
+
+    decoded = [
+        tokenizer.decode(generated.squeeze(0).tolist())
+        for generated in completed
+    ]
+
+    return decoded

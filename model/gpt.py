@@ -117,6 +117,12 @@ class GPT(nn.Module):
         self,
         x: torch.Tensor,
     ) -> torch.Tensor:
+        """
+        Generate and append the most likely next token.
+        
+        The model predicts logits for the next token and selects the token
+        with the highest probability using argmax.
+        """
         self.eval()
 
         context = x[:, -self.config.max_sequence_length:]
@@ -130,8 +136,58 @@ class GPT(nn.Module):
             x: torch.Tensor,
             tokens: int,
     ) -> torch.Tensor:
-
+        """
+        Generate a sequence of tokens autoregressively.
+        
+        Starting from the provided input sequence, repeatedly generates and
+        appends the most likely next token until the requested number of tokens
+        has been produced.
+        """
         for _ in range(tokens):
             x = self.generate_next_token(x)
+
+        return x
+
+    def generate_next_token_with_temp(
+        self,
+        x: torch.Tensor,
+        temperature: float,
+    ) -> torch.Tensor:
+        """
+        Generate and append one token using temperature-based sampling.
+
+        The model predicts logits for the next token, which are scaled by the
+        given temperature and converted into probabilities using softmax. The
+        next token is then sampled from this probability distribution.
+        """
+        self.eval()
+
+        if temperature <= 0:
+            raise ValueError("Temperature must be greater than 0.")
+
+        context = x[:, -self.config.max_sequence_length:]
+        logits = self(context)
+        logits = logits[:, -1, :]
+
+        probs = nn.functional.softmax(logits / temperature, dim=-1)
+        next_token = torch.multinomial(probs, num_samples=1)
+
+        return torch.cat((x, next_token), dim=1)
+
+    def generate_with_temp(
+        self,
+        x: torch.Tensor,
+        tokens: int,
+        temperature: float,
+    ) -> torch.Tensor:
+        """
+        Generate a sequence of tokens using temperature-based sampling.
+
+        Starting from the provided input sequence, repeatedly generates and
+        appends a token sampled from the model's temperature-scaled probability
+        distribution until the requested number of tokens has been produced.
+        """
+        for _ in range(tokens):
+            x = self.generate_next_token_with_temp(x, temperature)
 
         return x
