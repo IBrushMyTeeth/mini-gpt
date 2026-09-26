@@ -127,7 +127,9 @@ class GPT(nn.Module):
 
         context = x[:, -self.config.max_sequence_length:]
         logits = self(context)
-        next_token = torch.argmax(logits[:, -1, :], dim=-1, keepdim=True)
+        logits = logits[:, -1, :]
+
+        next_token = torch.argmax(logits, dim=-1, keepdim=True)
 
         return torch.cat((x, next_token), dim=1)
 
@@ -189,5 +191,45 @@ class GPT(nn.Module):
         """
         for _ in range(tokens):
             x = self.generate_next_token_with_temp(x, temperature)
+
+        return x
+
+    def generate_next_token_with_ksampling_temp(
+            self,
+            x: torch.Tensor,
+            temperature: float,
+            k: int,
+    ) -> torch.Tensor:
+
+        if k <= 0:
+            raise ValueError("K must be greater than 0.")
+        if temperature <= 0:
+            raise ValueError("Temperature must be greater than 0.")
+
+        self.eval()
+
+        context = x[:, -self.config.max_sequence_length:]
+        logits = self(context)
+        logits = logits[:, -1, :]
+
+        values, indices = torch.topk(logits, k=k, dim=-1)
+
+        filtered_logits = torch.full_like(logits, float("-inf"))
+        filtered_logits.scatter_(-1, indices, values)
+
+        probs = nn.functional.softmax(filtered_logits / temperature, dim=-1)
+        next_token = torch.multinomial(probs, 1)
+
+        return torch.cat((x, next_token), dim=1)
+
+    def generate_with_ksampling_temp(
+        self,
+        x: torch.Tensor,
+        tokens: int,
+        temperature: float,
+        k: int,
+    ) -> torch.Tensor:
+        for _ in range(tokens):
+            x = self.generate_next_token_with_ksampling_temp(x, temperature, k)
 
         return x
