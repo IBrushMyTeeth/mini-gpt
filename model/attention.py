@@ -25,6 +25,7 @@ class SelfAttention(nn.Module):
         embedding_dim: int,
         attention_dim: int,
         max_sequence_length: int,
+        dropout: float = 0,
     ) -> None:
         super().__init__()
 
@@ -45,6 +46,8 @@ class SelfAttention(nn.Module):
                 )
             ),
         )
+
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
@@ -68,6 +71,8 @@ class SelfAttention(nn.Module):
         )
 
         attention_weights = torch.softmax(scores, dim=-1)
+
+        attention_weights = self.dropout(attention_weights)
 
         output = attention_weights @ v
 
@@ -100,6 +105,7 @@ class MultiHeadAttention(nn.Module):
         attention_dim: int,
         max_sequence_length: int,
         num_heads: int,
+        dropout: float,
     ) -> None:
         super().__init__()
 
@@ -108,7 +114,8 @@ class MultiHeadAttention(nn.Module):
                 SelfAttention(
                     embedding_dim,
                     attention_dim,
-                    max_sequence_length
+                    max_sequence_length,
+                    dropout
                 )
                 for _ in range(num_heads)
             ]

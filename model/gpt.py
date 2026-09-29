@@ -30,10 +30,13 @@ class GPT(nn.Module):
     def __init__(
         self,
         config: ModelConfig,
+        use_dropout: bool = False,
     ) -> None:
         super().__init__()
 
         self.config = config
+
+        self.dropout_rate = config.dropout if use_dropout else 0.0
 
         self.input_embedding = InputEmbedding(
             config.vocabulary_size,
@@ -49,6 +52,7 @@ class GPT(nn.Module):
                     config.hidden_dim,
                     config.max_sequence_length,
                     config.num_heads,
+                    self.dropout_rate
                 )
 
                 for _ in range(config.num_layers)

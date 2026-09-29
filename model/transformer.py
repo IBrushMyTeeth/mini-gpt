@@ -28,6 +28,7 @@ class TransformerBlock(nn.Module):
         hidden_dim: int,
         max_sequence_length: int,
         num_heads: int,
+        dropout: float,
 
     ) -> None:
         super().__init__()
@@ -38,12 +39,15 @@ class TransformerBlock(nn.Module):
             embedding_dim,
             attention_dim,
             max_sequence_length,
-            num_heads
+            num_heads,
+            dropout
         )
 
         self.layer_norm_2 = nn.LayerNorm(embedding_dim)
 
         self.mlp = MLP(embedding_dim, hidden_dim)
+
+        self.dropout = nn.Dropout(dropout)
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Attention sub-block
@@ -51,6 +55,9 @@ class TransformerBlock(nn.Module):
 
         x = self.layer_norm_1(x)
         x = self.multi_headed_attention(x)
+
+        x = self.dropout(x)
+
         x = residual + x
 
         # MLP sub-block
@@ -58,6 +65,9 @@ class TransformerBlock(nn.Module):
 
         x = self.layer_norm_2(x)
         x = self.mlp(x)
+
+        x = self.dropout(x)
+
         x = x + residual
 
         return x

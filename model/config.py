@@ -22,3 +22,4 @@ class ModelConfig:
         num_heads: int = 4
         hidden_dim: int = 512
         num_layers: int = 3
+        dropout: float = 0.1
