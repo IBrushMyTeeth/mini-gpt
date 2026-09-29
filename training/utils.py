@@ -8,6 +8,7 @@ learning curve as a figure.
 
 
 from pathlib import Path
+from copy import deepcopy
 
 import torch
 import torch.nn as nn
@@ -31,13 +32,19 @@ def train(
     validation set after the training phase of each epoch.
 
     During validation, gradient computation is disabled and the model is
-    switched to evaluation mode. The function returns the recorded training
-    and validation losses for each epoch.
+    switched to evaluation mode. The model parameters from the epoch with
+    the lowest validation loss are restored after training.
+
+    Returns the recorded training and validation losses for each epoch.
     """
     print("Initializing training:")
 
     training_history = []
     validation_history = []
+
+    best_epoch = None
+    best_loss = None
+    best_model = None
 
     for epoch in range(epochs):
         print(f"Currently at epoch {epoch + 1}...")
@@ -85,12 +92,26 @@ def train(
             validation_loss /= len(validation_loader)
             validation_history.append(validation_loss)
 
+            if best_loss is None or validation_loss < best_loss:
+                best_loss = validation_loss
+                best_epoch = epoch + 1
+                best_model = deepcopy(model.state_dict())
+
             print(
                 f"Training loss: {epoch_loss:.4f} | "
                 f"Validation loss: {validation_loss:.4f}"
             )
         else:
             print(f"Training loss: {epoch_loss:.4f}")
+
+    # Restore the best model
+    if best_model is not None:
+        model.load_state_dict(best_model)
+
+        print(
+            f"Best epoch: {best_epoch} | "
+            f"Lowest validation loss: {best_loss:.4f}"
+        )
 
     return {
         "training": training_history,
