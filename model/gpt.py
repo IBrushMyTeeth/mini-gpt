@@ -204,6 +204,13 @@ class GPT(nn.Module):
             temperature: float,
             k: int,
     ) -> torch.Tensor:
+        """
+        Generate and append one token using top-k sampling and temperature.
+
+        The model predicts logits for the next token and restricts the
+        probability distribution to the k most likely tokens. The remaining
+        logits are discarded before temperature-based sampling is applied.
+        """
 
         if k <= 0:
             raise ValueError("K must be greater than 0.")
@@ -233,6 +240,13 @@ class GPT(nn.Module):
         temperature: float,
         k: int,
     ) -> torch.Tensor:
+        """
+        Generate a sequence of tokens using top-k sampling and temperature.
+
+        Starting from the provided input sequence, repeatedly generates and
+        appends a token sampled from the k most likely tokens using the given
+        temperature until the requested number of tokens has been produced.
+        """
         for _ in range(tokens):
             x = self.generate_next_token_with_ksampling_temp(x, temperature, k)
 

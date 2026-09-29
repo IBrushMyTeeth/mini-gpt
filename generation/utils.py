@@ -47,6 +47,13 @@ def generate_completions_with_temp(
         new_tokens: int,
         temperature: float,
 ) -> list[str]:
+    """
+    Generate text completions using temperature-based sampling.
+
+    Each prompt is encoded into token IDs, passed to the GPT model for
+    autoregressive generation using the given temperature, and decoded back
+    into text.
+    """
 
     encoded = [
         torch.tensor(tokenizer.encode(prompt)).unsqueeze(0)
@@ -73,6 +80,13 @@ def generate_completions_with_ksampling_temp(
         temperature: float,
         k: int,
 ) -> list[str]:
+    """
+    Generate text completions using top-k sampling and temperature.
+
+    Each prompt is encoded into token IDs, passed to the GPT model for
+    autoregressive generation using the k most likely tokens and the given
+    temperature, and decoded back into text.
+    """
 
     encoded = [
         torch.tensor(tokenizer.encode(prompt)).unsqueeze(0)
