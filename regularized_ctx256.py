@@ -145,8 +145,33 @@ value of 1.4913 at epoch 24.
 After epoch 24, the validation loss remained relatively stable but began to
 increase slightly, indicating that further training was no longer improving
 generalization. The best checkpoint was therefore obtained at epoch 24. This
-was however above the best achieved validation loss for the previous model
+was, however, above the best achieved validation loss for the previous model,
 which had a context length of 128 and a validation loss of 1.4736.
+
 The results also indicate that the model had largely reached a validation-loss
-plateau by the later stages of training.
+plateau by the later stages of training. Increasing the context length from
+128 to 256 therefore did not provide a clear validation-loss improvement,
+despite the additional training time required.
+
+The generation and context-ablation experiments also did not provide strong
+evidence that the model was making effective use of the additional 128
+characters of context. Although the 256-context model was able to reproduce
+longer sequences from the training data, this primarily demonstrated
+memorization. On validation data, changing different parts of the available
+context did not provide clear evidence of a substantial benefit from the
+larger context window.
+
+These results suggest that, for the current character-level Shakespeare
+model, increasing the context length to 256 is not the most promising
+direction for improving performance. This does not necessarily mean that
+longer context is inherently unnecessary for character-level language
+modeling, but rather that the current model did not show a clear benefit from
+the additional context.
+
+The next experiments will therefore return to a context length of 128 and
+focus on increasing model capacity. In particular, the number of Transformer
+layers and the size of the MLP will be increased while keeping the context
+length fixed. This will allow us to investigate whether additional model
+capacity provides a more useful improvement than increasing the context
+window.
 """
