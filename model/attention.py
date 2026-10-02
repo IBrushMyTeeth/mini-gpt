@@ -88,15 +88,6 @@ class MultiHeadAttention(nn.Module):
     Each head receives the same input but learns its own query, key, and
     value projections. The outputs of all attention heads are concatenated
     along the embedding dimension.
-
-    Note:
-        In the standard Transformer architecture, the concatenated
-        attention heads are passed through an output projection W_0.
-        This implementation omits W_0 because num_heads * attention_dim
-        is chosen to equal embedding_dim. The concatenated output can
-        therefore be passed directly through the residual connection, while the
-        subsequent feed-forward network can naturally mix information across
-        the different attention heads.
     """
 
     def __init__(
@@ -121,9 +112,17 @@ class MultiHeadAttention(nn.Module):
             ]
         )
 
+        self.output_projection = nn.Linear(
+            in_features=num_heads * attention_dim,
+            out_features=embedding_dim
+        )
+
     def forward(self,x: torch.Tensor) -> torch.Tensor:
         """
         Compute and concatenate the outputs of all attention heads.
+        Project back the result into the specified embedding dimension.
         """
         outputs = [head(x) for head in self.heads]
-        return torch.cat(outputs, dim=-1)
+        x = torch.cat(outputs, dim=-1)
+
+        return self.output_projection(x)
