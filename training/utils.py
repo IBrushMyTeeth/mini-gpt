@@ -22,6 +22,7 @@ def train(
         criterion: nn.Module,
         epochs: int,
         validation_loader: DataLoader | None = None,
+        scheduler: torch.optim.lr_scheduler.ReduceLROnPlateau | None = None,
 ) -> dict[str, list[float]]:
     """
     Train a PyTorch model and optionally evaluate it on a validation dataset.
@@ -34,6 +35,9 @@ def train(
     During validation, gradient computation is disabled and the model is
     switched to evaluation mode. The model parameters from the epoch with
     the lowest validation loss are restored after training.
+
+    If a learning-rate scheduler is provided, it is stepped after validation
+    using the validation loss.
 
     Returns the recorded training and validation losses for each epoch.
     """
@@ -55,7 +59,7 @@ def train(
         epoch_loss = 0.0
 
         for x, y in train_loader:
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
 
             logits = model(x)
 
@@ -78,7 +82,7 @@ def train(
 
             validation_loss = 0.0
 
-            with torch.no_grad():
+            with torch.inference_mode():
                 for x, y in validation_loader:
                     logits = model(x)
 
@@ -97,9 +101,15 @@ def train(
                 best_epoch = epoch + 1
                 best_model = deepcopy(model.state_dict())
 
+            if scheduler is not None:
+                scheduler.step(validation_loss)
+
+            current_lr = optimizer.param_groups[0]["lr"]
+
             print(
                 f"Training loss: {epoch_loss:.4f} | "
-                f"Validation loss: {validation_loss:.4f}"
+                f"Validation loss: {validation_loss:.4f} | "
+                f"LR: {current_lr:.6f}"
             )
         else:
             print(f"Training loss: {epoch_loss:.4f}")
