@@ -183,47 +183,26 @@ Fouststly I moat ten my beholdier
 I hatroy their less; or have a 
 
 
-Generation comparison across context lengths:
-1) Current context length is 256
-2) The previous model used a context length of 128
+Generation with 256-token context:
 
 The 256-context model produces noticeably different generations from the
-128-context model when temperature sampling is used. The longer context
-allows the model to condition its predictions on a larger portion of the
-preceding text, resulting in somewhat more developed dialogue structures and
-more varied continuations.
+previous 128-context model. The longer context allows the model to condition
+its predictions on more preceding text, resulting in more developed dialogue
+and longer structured continuations.
 
-At a temperature of 0.5, the 256-context model generally produces longer
-and more structured passages before becoming incoherent. It frequently
-maintains a recognizable dialogue format, with character names followed by
-several lines of text. The 128-context model also produces recognizable
-dialogue, but its continuations tend to transition between characters and
-phrases more abruptly.
+At temperatures 0.5 and 1.0, the model generally maintains recognizable
+Shakespearean dialogue, character names, vocabulary, and punctuation while
+producing varied continuations. Compared with the 128-context model, several
+generations sustain dialogue structure for longer before becoming incoherent.
 
-At a temperature of 1.0, the 256-context model continues to generate varied
-Shakespearean-style dialogue while maintaining more consistent local
-structure. The 128-context model produces similarly varied text, but more
-frequently jumps between unrelated characters and contains abrupt or
-fragmented transitions.
+At temperature 1.5, both models become considerably more random, with
+malformed words and unusual character names. This shows that high sampling
+temperatures can overwhelm the benefits of additional context.
 
-At a temperature of 1.5, both models become increasingly noisy and produce
-malformed words and unusual character names. However, the 256-context model
-still maintains recognizable dialogue structures in several generations,
-whereas the 128-context model more quickly produces highly fragmented text.
-
-Overall, increasing the context length from 128 to 256 does not eliminate the
-grammatical and semantic problems of the model, nor does it clearly produce
-more coherent text in every generation. Its main observable effect is that
-the model can maintain larger-scale dialogue structures and more varied
-continuations before losing coherence.
-
-The difference is most noticeable when sampling at lower temperatures,
-where the 256-context model appears better able to sustain a continuation
-over a longer sequence. At higher temperatures, the additional context is
-less apparent because the increased sampling randomness dominates the
-generation behaviour.
-
-These results suggest that the longer context provides the model with more
-information for generation, but the current model has not yet learned to
-consistently exploit that information for long-range semantic coherence.
+Overall, increasing the context length from 128 to 256 appears beneficial.
+It does not solve the model's grammatical and semantic limitations, but it
+allows the model to use more surrounding text and produce more developed
+dialogue structures. The results suggest that longer context can improve
+generation quality, although the model's ability to exploit long-range
+information remains limited.
 """
