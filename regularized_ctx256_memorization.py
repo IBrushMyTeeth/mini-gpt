@@ -79,7 +79,6 @@ def main():
             new_tokens=NEW_TOKENS,
         )[0]
 
-        print(f"Temperature: {TEMPERATURE}")
         print("-" * 60)
         print(completion)
         print()
@@ -171,7 +170,6 @@ Prompt 1 (64 characters)
 Second Murderer:
 I'll not meddle with it: it is a dangerous thin
 
-Temperature: 0.5
 ------------------------------------------------------------
 Second Murderer:
 I'll not meddle with it: it is a dangerous thing
@@ -189,7 +187,6 @@ I'll not meddle with it: it is a dangerous thing: it
 makes a man a coward: a man cannot steal, but it
 accuseth 
 
-Temperature: 0.5
 ------------------------------------------------------------
 Second Murderer:
 I'll not meddle with it: it is a dangerous thing: it
@@ -212,7 +209,6 @@ accuseth him; he cannot swear, but it cheques him;
 he cannot lie with his neighbour's wife, but it
 detects him: 'tis a blushing shamefast
 
-Temperature: 0.5
 ------------------------------------------------------------
 Second Murderer:
 I'll not meddle with it: it is a dangerous thing: it
@@ -227,46 +223,35 @@ and the senate of the seath of the seath,
 and the senate
 
 
+Training-Data Memorization and Decoding Experiment
+===================================================
 
-Context-length ablation using a training passage to test memorization:
+A passage taken directly from the training data was used to examine how the
+256-context model behaves with 64, 128, and 256 characters of preceding
+context. Both temperature sampling and greedy decoding were tested.
 
-A passage taken directly from the training data was used to investigate how
-the 256-context model behaves when given 64, 128, and 256 characters of
-preceding context. The same prompts were evaluated using both temperature
-sampling and greedy decoding.
+With temperature sampling at 0.5, longer prompts allow the model to continue
+the supplied passage for somewhat longer before generating new text. However,
+the model does not reproduce large portions of the passage exactly. This
+suggests some ability to memorize training sequences, but not complete
+memorization of the passage.
 
-With temperature sampling at 0.5, increasing the prompt length allowed the
-model to reproduce progressively more of the original training passage before
-generating new text. The 256-character prompt reproduced substantially more
-of the passage than the shorter prompts. Since the passage is part of the
-training data, this reproduction demonstrates memorization rather than
-generalization.
+Once the model moves beyond the supplied text, the generations contain
+recognizable Shakespearean vocabulary, dialogue structure, and punctuation.
+This indicates that the model has learned broader patterns from the dataset
+rather than simply memorizing the tested passage.
 
-After leaving the memorized passage, the sampled generations maintained
-recognizable Shakespearean dialogue structures, including speaker names,
-punctuation, and Shakespearean-style vocabulary. The model therefore retains
-a degree of structural consistency even after it begins generating text not
-directly copied from the supplied passage.
+Greedy decoding produces a different limitation. The model quickly falls into
+repetitive character-level patterns, with the 256-character prompt eventually
+producing sequences such as "the senate of the seath of the seath". This shows
+how repeatedly selecting the most probable next character can lead to
+repetition loops.
 
-The greedy decoding results show a different behaviour. Although the model
-again reproduces progressively more of the training passage as the context
-length increases, the generated continuation quickly falls into highly
-repetitive character-level patterns. With the 256-character prompt, the
-model repeatedly generates sequences such as "the senate of the seath of
-the seath", demonstrating that the longer context does not prevent greedy
-decoding from becoming trapped in a high-probability repetition loop.
-
-The contrast between the two decoding strategies is therefore particularly
-informative. The model appears to have a broader distribution of plausible
-continuations than greedy decoding exposes. Temperature sampling allows the
-model to move between different probable character sequences, while argmax
-decoding repeatedly selects the same locally probable patterns.
-
-Overall, the experiment demonstrates that the 256-context model can memorize
-and reproduce substantially longer sequences from its training data, but the
-additional context alone does not resolve the repetitive behaviour observed
-under greedy decoding. Because the tested passage belongs to the training
-data, a corresponding experiment on unseen validation text would be required
-to determine whether the longer context provides a genuine generalization
-benefit.
+Overall, the experiment suggests limited training-data memorization rather
+than direct reproduction of the entire passage. Temperature sampling produces
+much more varied continuations than greedy decoding, while the longer context
+allows the model to make use of more preceding information. However, this
+experiment cannot establish whether a longer context improves generalization,
+because the tested passage was part of the training data. An equivalent
+experiment using unseen validation text would be needed to evaluate that.
 """
