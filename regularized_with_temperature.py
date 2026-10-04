@@ -196,39 +196,28 @@ I have persons you wake't, paud
 Generation with temperature sampling:
 
 Temperature sampling provides a different picture of the regularized model's
-generation behaviour than the previous argmax experiment. When sampling is
-used, the strong repetitive patterns observed under greedy decoding largely
-disappear. This suggests that the repetition was not simply caused by the
-model being unable to produce diverse text, but was amplified by always
-selecting the single most probable next character.
+generation behaviour than greedy decoding. When sampling is used, the strong
+repetitive patterns observed with argmax decoding largely disappear, showing
+that the model can produce more diverse text when it is not restricted to the
+single most probable character.
 
-At a temperature of 0.5, the generations remain relatively conservative and
-retain recognizable Shakespearean dialogue structures while avoiding the
-strong repetition seen with argmax decoding. At temperature 1.0, the model
-produces greater variation in character names, dialogue, and word choices.
-Although the generated text is still often grammatically or semantically
-incorrect, it more closely resembles the structure and style of the
-Shakespeare corpus without falling into the repetitive loops observed with
-greedy decoding.
+At a temperature of 0.5, the generations remain conservative and retain
+recognizable Shakespearean dialogue structures. At 1.0, the model produces
+greater variation in character names, vocabulary, and dialogue while still
+maintaining recognizable Shakespearean characteristics. At 1.5, the output
+becomes substantially more random, with malformed words and increasingly
+incoherent sequences.
 
-Increasing the temperature to 1.5 produces substantially more randomness.
-The generations contain malformed words, unusual character names, and
-increasingly incoherent sequences. This indicates that increasing
-temperature too far causes the model to sample lower-probability character
-transitions that are less consistent with learned language patterns.
+Although the generated text is not consistently grammatically or semantically
+correct, the results are quite good considering the model's small size,
+character-level tokenizer, limited dataset, and computational constraints.
+Among the models trained in this project, this smaller regularized model also
+achieved the best validation performance and produced some of the more
+coherent generated samples.
 
-Overall, the experiment shows that the regularized model's generation quality
-is strongly dependent on the decoding strategy. Greedy decoding exposed
-repetitive high-probability character-level patterns, whereas temperature
-sampling allowed the model to explore alternative probable continuations and
-substantially reduced this repetition. A moderate temperature, particularly
-around 1.0 in this experiment, provides a better balance between deterministic
-repetition and excessive randomness.
-
-This also demonstrates that generation quality cannot be evaluated from the
-model alone without considering the decoding strategy. The regularized model
-achieved better validation generalization than the overfitted baseline, while
-sampling shows that its probability distribution can still produce diverse
-Shakespearean-style text when it is not restricted to the single most
-probable next character.
+Overall, a moderate temperature, particularly around 1.0, provides a good
+balance between repetition and randomness. The experiment demonstrates that
+the model learned recognizable Shakespearean vocabulary, dialogue structures,
+character names, and stylistic patterns, while achieving the best overall
+generalization of the models tested.
 """
