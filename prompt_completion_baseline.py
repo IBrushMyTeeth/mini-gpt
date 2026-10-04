@@ -185,22 +185,32 @@ banishment of the seat o'
 
 
 
-Observations:
+Baseline Model Generation Report
+================================
 
-The baseline model is able to generate text that exhibits several 
-characteristics of the Shakespeare training corpus. It frequently produces
-character names followed by a colon and dialogue, suggesting that it has
-learned the structural format of the source text. It also generates
-Shakespearean vocabulary and recurring grammatical constructions such as
+The baseline model was evaluated using several Shakespeare-style prompts.
+The model produces recognizable character names, dialogue formatting,
+Shakespearean vocabulary, and recurring grammatical patterns such as
 "thou", "thee", "hither", and "shall".
 
-The generated sentences are often locally grammatical and resemble
-Shakespearean dialogue, but they frequently lack semantic coherence. The model
-therefore appears to have learned many local syntactic and stylistic patterns,
-while struggling to maintain coherent meaning over longer sequences.
+Many generated passages are locally plausible and resemble Shakespearean
+dialogue. However, longer sequences frequently lose semantic coherence and
+contain repetitive or grammatically incorrect constructions.
 
-The experiment also shows that the structure and specificity of the prompt
-influence the generated text. Prompts containing a character name and an
-existing piece of dialogue tend to produce more strongly structured
-Shakespearean-style continuations.
+An important consideration is that this baseline model was strongly
+overfitted to the training data. It achieved a training loss of approximately
+0.96, compared with a substantially higher validation loss of approximately
+1.831. Therefore, some of the seemingly strong generation results may be
+partly explained by the model fitting the training corpus very closely rather
+than generalizing well to unseen text.
+
+The model clearly learned useful local patterns from the dataset, but the
+large gap between training and validation performance shows that these
+patterns did not transfer equally well to unseen data.
+
+Overall, the baseline demonstrates that the model can learn recognizable
+Shakespearean structure and style, but its generation quality should not be
+interpreted independently of its overfitting. This provided an important
+motivation for introducing regularization and evaluating models primarily
+using validation performance rather than training loss alone.
 """
